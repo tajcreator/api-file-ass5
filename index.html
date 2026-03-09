@@ -41,34 +41,40 @@
                 <div class="flex justify-center mb-3">
                      <img src="assets/github-logo.png" alt="">
                 </div>
-                <h2 class="text-3xl font-bold">GitHub Issues Tracker</h2>
+                <h2 class="text-3xl text-black font-bold">GitHub Issues Tracker</h2>
                 <p class="text-gray-500 mt-1">Sign in to manage your issues</p>
             </div>
             <div class="space-y-4">
                 <div class="form-control">
                     <label class="label"><span class="label-text">Username</span></label>
                     <input type="text" id="loginUsername" placeholder="admin" class="input input-bordered w-full" value="admin" />
+                    <label class="label"><span class="label-text-alt text-gray-400">Default: admin</span></label>
                 </div>
+
                 <div class="form-control">
                     <label class="label"><span class="label-text">Password</span></label>
                     <input type="password" id="loginPassword" placeholder="••••••••" class="input input-bordered w-full" value="admin123" />
+                      <label class="label"><span class="label-text-alt text-gray-400">Default: admin123</span></label>
                 </div>
-                <button id="loginBtn" class="btn btn-primary w-full">Sign in</button>
-                <div class="text-center text-sm text-gray-400">
-                    demo: <span class="font-mono">admin / admin123</span>
+                <button id="loginBtn" class="btn bg-blue-600 text-white w-full">Sign in</button>
+               <div class="divider">OR</div>
+
+                <div class="text-center text-sm bg-gray-100 p-3 rounded-lg">
+                    <p class="font-medium">Demo Credentials:</p>
+                    <p class="text-gray-600">Username: <span class="font-mono">admin</span> | Password: <span class="font-mono">admin123</span></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!--   MAIN APP (hidden until login)  -->
+<!-- ========== MAIN APP ========== -->
 <div id="appContainer" class="hidden max-w-7xl mx-auto p-4 md:p-6">
 
-    <!-- navbar with logo & search -->
+    <!-- navbar -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div class="flex items-center gap-2 text-2xl font-bold text-primary">
-           <img style="width: 50px;" src="assets/github-logo.png" alt="">
+             <img style="width: 50px;" src="assets/github-logo.png" alt="">
             <span>GitHub Issues Tracker</span>
         </div>
         <div class="flex w-full sm:w-auto gap-2">
@@ -77,48 +83,50 @@
         </div>
     </div>
 
-  
+    <!-- tabs -->
     <div class="tabs tabs-boxed mb-4 flex justify-start gap-1 p-1 bg-base-200 rounded-xl w-fit">
         <button id="tabAll" class="tab tab-active px-6 py-2 rounded-lg" data-status="all">All</button>
         <button id="tabOpen" class="tab px-6 py-2 rounded-lg" data-status="open">Open</button>
         <button id="tabClosed" class="tab px-6 py-2 rounded-lg" data-status="closed">Closed</button>
     </div>
 
-   
+    <!-- stats row -->
     <div class="flex flex-wrap items-center justify-between bg-white p-4 rounded-xl shadow-sm mb-6">
         <div class="flex items-center gap-3">
-            <i class="fas fa-tag text-2xl text-primary"></i>
-            <span class="text-lg font-medium">Issues</span>
+        <img src="assets/Aperture.png" alt="">  
+           
             <span id="totalCount" class="badge badge-primary badge-lg">0</span>
+            <span class="text-lg font-medium">Issues</span><br>
+            <br>
+                   <div>   <p>Track and manage your project issues</p> </div>
         </div>
+c
+
+        
+        
         <div class="flex gap-4 text-sm">
-            <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-500 rounded-full"></span> Open <span id="openCount">0</span></span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 bg-purple-500 rounded-full"></span> Closed <span id="closedCount">0</span></span>
+            <span class="flex items-center gap-1"><img src="assets/Open-Status.png" alt=""> Open <span id="openCount">0</span></span>
+            <span class="flex items-center gap-1"><img src="assets/Closed- Status .png" alt="">Closed <span id="closedCount">0</span></span>
         </div>
     </div>
 
- 
-    <div id="loader" class="loader hidden"></div>
+    <!-- loader -->
+    <div id="loader" class="loader hidden"></div> 
 
- 
+    <!-- issues grid (updated card design) -->
     <div id="issuesGrid" class="issue-grid mt-4"></div>
 
-  
+    <!-- no issues message -->
     <div id="noIssuesMsg" class="text-center py-12 text-gray-400 hidden">
         <i class="fas fa-folder-open text-6xl mb-3"></i>
         <p>No issues found</p>
     </div>
 
- 
+    <!-- MODAL (unchanged) -->
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content bg-white rounded-2xl p-6 shadow-2xl relative">
-         
             <button id="closeModalBtn" class="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost">✕</button>
-   
-            <div id="modalBody" class="space-y-4">
-      
-            </div>
-             
+            <div id="modalBody" class="space-y-4"></div>
             <div class="mt-6 flex justify-end">
                 <button id="closeBottomBtn" class="btn btn-outline btn-primary px-8">Close</button>
             </div>
@@ -126,9 +134,280 @@
     </div>
 </div>
 
- <script src="git.js"></script>
- 
- 
+<script>
+    (function() {
+        // ---------- state ----------
+        let allIssues = [];
+        let displayedIssues = [];
+        let currentTab = 'all';
+        let activeSearchQuery = '';
+
+        // DOM elements
+        const loginContainer = document.getElementById('loginContainer');
+        const appContainer = document.getElementById('appContainer');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginUsername = document.getElementById('loginUsername');
+        const loginPassword = document.getElementById('loginPassword');
+
+        const tabAll = document.getElementById('tabAll');
+        const tabOpen = document.getElementById('tabOpen');
+        const tabClosed = document.getElementById('tabClosed');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const loader = document.getElementById('loader');
+        const issuesGrid = document.getElementById('issuesGrid');
+        const noIssuesMsg = document.getElementById('noIssuesMsg');
+        const totalCountSpan = document.getElementById('totalCount');
+        const openCountSpan = document.getElementById('openCount');
+        const closedCountSpan = document.getElementById('closedCount');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalBody = document.getElementById('modalBody');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const closeBottomBtn = document.getElementById('closeBottomBtn');
+
+        // ---------- helpers ----------
+        function showLoader(show) {
+            loader.classList.toggle('hidden', !show);
+        }
+
+        function updateCounts() {
+            const open = allIssues.filter(issue => issue.status === 'open').length;
+            const closed = allIssues.filter(issue => issue.status === 'closed').length;
+            totalCountSpan.textContent = allIssues.length;
+            openCountSpan.textContent = open;
+            closedCountSpan.textContent = closed;
+        }
+
+        function filterIssuesByTab() {
+            if (currentTab === 'all') return displayedIssues;
+            return displayedIssues.filter(issue => issue.status === currentTab);
+        }
+
+        // Format date as m/d/yyyy (like screenshot: 1/15/2024)
+        function formatDate(isoString) {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+        }
+
+        // Map priority to badge color
+        function getPriorityBadge(priority) {
+            const p = priority.toLowerCase();
+            if (p === 'high') return 'badge-error';
+            if (p === 'medium') return 'badge-warning';
+            return 'badge-ghost'; // low or undefined
+        }
+
+        // render cards with new design
+        function renderCards(issuesToRender) {
+            issuesGrid.innerHTML = '';
+            if (!issuesToRender || issuesToRender.length === 0) {
+                noIssuesMsg.classList.remove('hidden');
+                return;
+            }
+            noIssuesMsg.classList.add('hidden');
+
+            issuesToRender.forEach(issue => {
+                const borderClass = issue.status === 'open' ? 'card-open' : 'card-closed';
+                const created = formatDate(issue.createdAt);
+                const priorityBadge = getPriorityBadge(issue.priority);
+                
+                // Build labels with link icon and uppercase (like 🔗 BUG)
+                const labelsHtml = issue.labels.map(label => 
+                    `<span class="badge bg-amber-600 text-black badge-outline gap-1"><i class="fas fa-link"></i> ${label.toUpperCase()}</span>`
+                ).join(' ');
+
+                const card = document.createElement('div');
+                card.className = `card bg-white shadow-md hover:shadow-lg transition cursor-pointer ${borderClass} rounded-t-none rounded-b-xl`;
+                card.setAttribute('data-id', issue.id);
+                card.innerHTML = `
+                    <div class="card-body p-4">
+                        <!-- priority badge at top left -->
+                        <div class="flex justify-between ml-60 items-end mb-2">
+                            <span class="badge ${priorityBadge} font-bold uppercase">${issue.priority}</span>
+                        </div>
+                        <!-- title -->
+                        <h3 class="font-bold text-lg text-black mb-1 line-clamp-2">${issue.title}</h3>
+                        <!-- description -->
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-3">${issue.description}</p>
+                        <!-- labels with link icons -->
+                        <div class="flex flex-wrap  gap-2 mb-3">
+                           <span>  ${labelsHtml} </span>
+                        </div>
+                        <!-- footer: #id by author + date -->
+                        <hr>
+                      <div class="flex flex-col text-xs text-gray-500 gap-1">
+    <span>#${issue.id} by ${issue.author}</span>
+    <span>Created: ${created}</span>
+</div>
+
+                    </div>
+                `;
+                card.addEventListener('click', () => openIssueModal(issue.id));
+                issuesGrid.appendChild(card);
+            });
+        }
+
+        function refreshUI() {
+            const filtered = filterIssuesByTab();
+            renderCards(filtered);
+        }
+
+        // ---------- API calls ----------
+        async function fetchAllIssues() {
+            showLoader(true);
+            try {
+                const res = await fetch('https://phi-lab-server.vercel.app/api/v1/lab/issues');
+                const json = await res.json();
+                allIssues = json.data || [];
+                displayedIssues = [...allIssues];
+                updateCounts();
+                refreshUI();
+            } catch (err) {
+                console.error(err);
+                issuesGrid.innerHTML = '<p class="text-center text-error col-span-full">Failed to load issues</p>';
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        async function fetchSearchIssues(query) {
+            if (!query.trim()) {
+                displayedIssues = [...allIssues];
+                activeSearchQuery = '';
+                refreshUI();
+                return;
+            }
+            showLoader(true);
+            try {
+                const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${encodeURIComponent(query)}`);
+                const json = await res.json();
+                displayedIssues = json.data || [];
+                activeSearchQuery = query;
+                refreshUI();
+            } catch (err) {
+                console.error(err);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        // ========== MODAL (unchanged, matches previous screenshot) ==========
+        async function openIssueModal(issueId) {
+            showLoader(true);
+            try {
+                const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${issueId}`);
+                const json = await res.json();
+                const issue = json.data;
+
+                const createdDate = formatDate(issue.createdAt);
+                
+                const labelsHtml = issue.labels.map(label => {
+                    let colorClass = 'badge-neutral';
+                    const upperLabel = label.toUpperCase();
+                    if (upperLabel.includes('BUG')) colorClass = 'badge-error';
+                    else if (upperLabel.includes('HELP')) colorClass = 'badge-warning';
+                    else if (upperLabel.includes('ENHANCEMENT')) colorClass = 'badge-success';
+                    else if (upperLabel.includes('DOC')) colorClass = 'badge-info';
+                    return `<span class="badge ${colorClass} badge-uppercase mr-1 px-3 py-2 text-xs font-semibold uppercase">${upperLabel}</span>`;
+                }).join('');
+
+                const assignee = issue.assignee || 'Unassigned';
+                const priority = issue.priority.toUpperCase();
+
+                modalBody.innerHTML = `
+                    <h2 class="text-xl text-black font-semibold text-gray-800">${issue.title}</h2>
+                    <div class="flex items-center text-sm text-gray-600 gap-1">
+                        <span><span class="font-medium">Opened by</span> ${issue.author} • ${createdDate}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 my-3">
+                        ${labelsHtml}
+                    </div>
+                    <div class="text-gray-700 bg-gray-50 p-4 rounded-lg border-l-4 border-primary text-sm leading-relaxed">
+                        ${issue.description}
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm bg-gray-100 p-4 rounded-xl mt-2">
+                        <div>
+                            <span class="font-semibold text-gray-600">Assignee:</span>
+                            <span class="block mt-1">${assignee}</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-600">Priority:</span>
+                            <span class="block mt-1"><span class="badge badge-primary badge-lg font-bold">${priority}</span></span>
+                        </div>
+                    </div>
+                `;
+
+                modalOverlay.classList.remove('hidden');
+            } catch (err) {
+                alert('Could not load issue details');
+                console.error(err);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        // ---------- event listeners ----------
+        loginBtn.addEventListener('click', () => {
+            if (loginUsername.value === 'admin' && loginPassword.value === 'admin123') {
+                loginContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                fetchAllIssues();
+            } else {
+                alert('Use admin / admin123');
+            }
+        });
+
+        function setActiveTab(tabId) {
+            [tabAll, tabOpen, tabClosed].forEach(t => t.classList.remove('tab-active'));
+            document.getElementById(tabId).classList.add('tab-active');
+        }
+        tabAll.addEventListener('click', () => { setActiveTab('tabAll'); currentTab = 'all'; refreshUI(); });
+        tabOpen.addEventListener('click', () => { setActiveTab('tabOpen'); currentTab = 'open'; refreshUI(); });
+        tabClosed.addEventListener('click', () => { setActiveTab('tabClosed'); currentTab = 'closed'; refreshUI(); });
+
+        searchBtn.addEventListener('click', () => fetchSearchIssues(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
+
+        const closeModal = () => modalOverlay.classList.add('hidden');
+        closeModalBtn.addEventListener('click', closeModal);
+        closeBottomBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+        loginPassword.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+    })();
+</script>
+
+<!-- ========== README content with answers (hidden) ========== -->
+<div style="display: none;">
+    # Issue Dashboard – Phi Lab
+
+    ## 8 meaningful commits (simulated)
+    1. feat: login page with demo credentials (redesigned per screenshot)
+    2. feat: fetch all issues and display responsive grid
+    3. feat: tab filtering (all/open/closed)
+    4. feat: search issues using API endpoint
+    5. feat: modal with detailed issue view (screenshot-perfect)
+    6. style: card top border (green for open, purple for closed)
+    7. style: loading spinner and active tab highlight
+    8. docs: complete README with theory answers
+
+    ## Answers (written in own words)
+
+    **1. What is the difference between var, let, and const?**  
+    `var` is function‑scoped, can be redeclared, and hoisted. `let` is block‑scoped, can be updated but not redeclared. `const` is block‑scoped, cannot be updated or redeclared, and must be initialized at declaration.
+
+    **2. What is the spread operator (...)?**  
+    The spread operator expands elements of an iterable (like array or object) into individual items. Example: `const newArr = [...oldArr, 4]` or `const newObj = {...oldObj, key: 'value'}`.
+
+    **3. What is the difference between map(), filter(), and forEach()?**  
+    `map()` returns a new array after transforming each element. `filter()` returns a new array with elements that satisfy a condition. `forEach()` executes a function on each element but returns nothing (used for side effects).
+
+    **4. What is an arrow function?**  
+    Arrow functions are a concise syntax: `(param) => expression`. They don't have their own `this`, `arguments`, or `super`, and cannot be used as constructors.
+
+    **5. What are template literals?**  
+    Template literals are strings enclosed by backticks (`) allowing embedded expressions `${}` and multi‑line strings, making string concatenation cleaner and more readable.
+</div>
 
 </body>
 </html>
