@@ -78,7 +78,7 @@
             <span>GitHub Issues Tracker</span>
         </div>
         <div class="flex w-full sm:w-auto gap-2">
-            <input type="text" id="searchInput" placeholder="Search issues..." class="input input-bordered w-full sm:w-64" />
+            <input type="text" id="searchInput" placeholder="Search issues..." class="input bg-amber-100 input-bordered w-full sm:w-64" />
             <button id="searchBtn" class="btn btn-secondary">Search</button>
         </div>
     </div>
@@ -236,9 +236,9 @@ c
                         <!-- footer: #id by author + date -->
                         <hr>
                       <div class="flex flex-col text-xs text-gray-500 gap-1">
-    <span>#${issue.id} by ${issue.author}</span>
-    <span>Created: ${created}</span>
-</div>
+                          <span>#${issue.id} by ${issue.author}</span>
+                        <span>Created: ${created}</span>
+                          </div>
 
                     </div>
                 `;
