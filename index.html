@@ -213,7 +213,10 @@ c
                 
             
                 const labelsHtml = issue.labels.map(label => 
-                    `<span class="badge bg-amber-500  text-black badge-outline gap-1"><i class="fas fa-link"></i> ${label.toUpperCase()}</span>`
+                    `<span class="badge ${label === "bug" ? "bg-red-200 text-red-600 font-medium" : "bg-amber-100 text-amber-500 font-bold"} text-white gap-">
+                     <i class="fas fa-link"></i> ${label.toUpperCase()}
+                               </span>
+`
                 ).join(' ');
 
                 const card = document.createElement('div');
@@ -223,7 +226,7 @@ c
                     <div class="card-body p-4">
                         <!-- priority badge at top left -->
                         <div class="flex justify-between ml-60 items-end mb-2">
-                            <span class="badge ${priorityBadge} font-bold uppercase">${issue.priority}</span>
+                            <span class="badge ${priorityBadge} font-semibold uppercase">${issue.priority}</span>
                         </div>
                         <!-- title -->
                         <h3 class="font-bold text-lg text-black mb-1 line-clamp-2">${issue.title}</h3>
